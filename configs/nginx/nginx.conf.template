@@ -1,0 +1,52 @@
+user  nginx;
+worker_processes  1;
+
+error_log  /var/log/nginx/error.log warn;
+pid        /var/run/nginx.pid;
+
+
+events {
+    worker_connections  1024;
+}
+
+
+http {
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
+
+    log_format  main  '${DOLLAR}remote_addr - ${DOLLAR}remote_user [${DOLLAR}time_local] "${DOLLAR}request" '
+                      '${DOLLAR}status ${DOLLAR}body_bytes_sent "${DOLLAR}http_referer" '
+                      '"${DOLLAR}http_user_agent" "${DOLLAR}http_x_forwarded_for"';
+
+    access_log  /var/log/nginx/access.log  main;
+
+    sendfile        on;
+
+
+    keepalive_timeout  65;
+
+    gzip  off;
+
+    # include /etc/nginx/conf.d/*.conf;
+
+    proxy_connect_timeout       600;
+    proxy_send_timeout          600;
+    proxy_read_timeout          600;
+    send_timeout                600;
+    client_max_body_size        0;
+
+    server {
+        listen       80;
+        server_name  frontend;
+
+        location /api {
+            proxy_pass http://${BACKEND};
+        }
+
+        location / {
+            root /usr/share/nginx/html;
+            # try_files $uri /index.html;
+        }
+
+    }
+}

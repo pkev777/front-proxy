@@ -1,0 +1,14 @@
+version: '3.4'
+services:
+  nginx:
+    image: nginx
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+    - ./scripts:/scripts
+    - ./configs:/configs
+    - ./html:/usr/share/nginx/html
+    command: ./scripts/run_nginx.sh
+    environment:
+      BACKEND: google.com
